@@ -1,0 +1,79 @@
+<div class="variable-selector">
+  <div class="selector-header">
+    <h3>{{ titulo }}</h3>
+    <p class="variable-count">{{ variablesFiltradas.length }} variables</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <mat-form-field appearance="outline" class="filtro-texto">
+      <mat-label>Buscar variable</mat-label>
+      <input matInput [(ngModel)]="filtroTexto" placeholder="Nombre de la variable...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filtro-tipo">
+      <mat-label>Tipo</mat-label>
+      <mat-select [(ngModel)]="filtroTipo">
+        <mat-option value="todas">Todas</mat-option>
+        <mat-option value="numerico">Numéricas</mat-option>
+        <mat-option value="categorico">Categóricas</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Lista de variables -->
+  <div class="variables-lista">
+    @for (variable of variablesFiltradas; track variable.nombre) {
+      <div class="variable-item">
+        
+        <mat-icon 
+          class="variable-icon"
+          [style.color]="getColorPorTipo(variable.tipo)">
+          {{ getIconoPorTipo(variable.tipo) }}
+        </mat-icon>
+        
+        <div class="variable-info">
+          <span class="variable-nombre" [matTooltip]="variable.descripcion || variable.nombre">
+            {{ variable.nombre }}
+          </span>
+          <span class="variable-tipo">{{ variable.tipo }}</span>
+        </div>
+
+        <div class="variable-actions">
+          <button mat-mini-fab 
+                  color="primary"
+                  [matTooltip]="estaEnEjeX(variable) ? 'Ya está en Eje X' : 'Agregar a Eje X'"
+                  [disabled]="estaEnEjeX(variable)"
+                  [class.button-success]="estaEnEjeX(variable)"
+                  (click)="onAgregarEjeX(variable)">
+            <mat-icon>{{ estaEnEjeX(variable) ? 'check' : 'arrow_forward' }}</mat-icon>
+          </button>
+          <button mat-mini-fab 
+                  color="accent"
+                  [matTooltip]="estaEnEjeY(variable) ? 'Ya está en Eje Y' : 'Agregar a Eje Y (solo numérico)'"
+                  [disabled]="variable.tipo !== 'numerico' || estaEnEjeY(variable)"
+                  [class.button-success]="estaEnEjeY(variable)"
+                  (click)="onAgregarEjeY(variable)">
+            <mat-icon>{{ estaEnEjeY(variable) ? 'check' : 'arrow_upward' }}</mat-icon>
+          </button>
+          <button mat-mini-fab 
+                  [matTooltip]="estaEnColor(variable) ? 'Ya está en Color' : getTooltipColor(variable)"
+                  [disabled]="!variable.puedeSerColor || estaEnColor(variable)"
+                  [class.button-success]="estaEnColor(variable)"
+                  (click)="onAgregarColor(variable)">
+            <mat-icon>{{ estaEnColor(variable) ? 'check' : 'palette' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (variablesFiltradas.length === 0) {
+      <div class="empty-message">
+        <mat-icon>info</mat-icon>
+        <p>No se encontraron variables</p>
+      </div>
+    }
+  </div>
+</div>
+

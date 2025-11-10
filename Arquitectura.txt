@@ -1,0 +1,163 @@
+Documentación de Arquitectura de SoftwareVisor Estadístico de Datos Académicos1. Resumen del ProyectoEl proyecto consiste en el diseño e implementación de una plataforma web para la visualización de estadísticas académicas (anónimas) de estudiantes. La plataforma permitirá a un usuario Administrador cargar datos mediante un archivo Excel (.xlsx) y a usuarios finales (Investigadores, Académicos) explorar estos datos de forma interactiva a través de un dashboard dinámico, similar en concepto a una interfaz de BI (Business Intelligence) ligera.La arquitectura seleccionada es un patrón Cliente-Servidor de 3 niveles, completamente desacoplado, diseñado para garantizar la seguridad, escalabilidad y reproducibilidad del sistema, principios clave para su validación en un contexto científico.2. Requerimientos del Sistema2.1. ActoresAdministrador: Usuario con privilegios elevados, responsable de la ingesta y actualización de los datos.Usuario (Visitante): Usuario final que consume las visualizaciones, filtra y explora los datos.2.2. Requerimientos Funcionales (FR)|| ID | Actor | Descripción || FR-01 | Administrador | El Admin debe poder autenticarse en un portal de administración seguro. || FR-02 | Administrador | El Admin debe poder cargar un archivo .xlsx con el formato predefinido de estadísticas estudiantiles. || FR-03 | Sistema | Al recibir un nuevo archivo, el sistema debe validar, procesar y reemplazar (o actualizar) los datos existentes en la base de datos SQL (Proceso ETL). || FR-04 | Usuario | El Usuario debe poder acceder al dashboard de visualización principal. || FR-05 | Usuario | El Usuario debe poder seleccionar el tipo de gráfico a generar (ej. Barras, Torta, Dispersión). || FR-06 | Usuario | El Usuario debe poder seleccionar (ej. arrastrar y soltar) las variables (columnas) que desea graficar en los ejes X e Y. || FR-07 | Usuario | El Usuario debe poder aplicar filtros dinámicos a los datos (ej. "Semestre = 5", "Promedio > 4.0"). || FR-08 | Usuario | Al seleccionar una variable para filtrar, si esta tiene menos de 10 valores únicos, el sistema debe mostrar una lista de selección (ej. Checkbox o Select list). || FR-09 | Usuario | El Usuario debe poder ver un resumen de los datos completos en formato tabular. || FR-10 | Sistema | La API debe exponer un endpoint que devuelva el conjunto de datos completo (JSON). || FR-11 | Sistema | La API debe exponer un endpoint que devuelva el esquema de los datos (nombres de columnas, tipos de datos, valores únicos) para que el frontend pueda construir los filtros dinámicamente. || FR-12 | Sistema | La API debe exponer un endpoint que acepte peticiones de consulta parametrizadas (filtros, agrupaciones) y devuelva el subconjunto de datos resultante. |2.3. Requerimientos No Funcionales (NFR)| ID | Categoría | Descripción || NFR-01 | Seguridad | El sistema no debe permitir Inyección SQL. Todas las consultas dinámicas deben ser sanitizadas y construidas en el backend. || NFR-02 | Seguridad | El portal de administración debe estar protegido contra acceso no autorizado (ej. JWT o Sesiones de Django). || NFR-03 | Rendimiento | El proceso ETL (carga de Excel) no debe tardar más de 60 segundos para un archivo de 50.000 filas. || NFR-04 | Rendimiento | Las consultas de la API para visualización deben responder en menos de 2 segundos. || NFR-05 | Usabilidad | La interfaz de usuario debe ser intuitiva, moderna y responsiva (adaptable a móviles). || NFR-06 | Escalabilidad | La arquitectura debe permitir escalar el frontend y el backend de forma independiente (facilitado por Docker). || NFR-07 | Reproducibilidad | El entorno completo de desarrollo y producción debe ser 100% reproducible usando Docker Compose. |3. Diagramas de Casos de Usograph TD
+    subgraph Sistema Visor Estadístico
+        UC1(Autenticarse)
+        UC2(Cargar Archivo Excel)
+        UC3(Procesar ETL)
+        UC4(Visualizar Dashboard)
+        UC5(Definir Gráfico)
+        UC6(Filtrar Datos)
+        UC7(Ver Tabla de Datos)
+    end
+
+    Admin(Administrador) --> UC1
+    Admin --> UC2
+    UC2 ..> UC3 : <<includes>>
+
+    User(Usuario) --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+
+4. Arquitectura de Software (Modelo C4)Nivel 1: Contexto del SistemaEl sistema se compone de dos tipos de usuarios que interactúan con la Plataforma de Visualización Estadística. El Administrador alimenta el sistema con datos, y el Usuario consume visualizaciones.graph TD
+    Admin(Administrador) -- "Carga datos .xlsx" --> Plataforma[Plataforma Visor Estadístico]
+    Usuario(Usuario) -- "Consulta y visualiza datos" --> Plataforma
+
+Nivel 2: ContenedoresLa plataforma se descompone en tres contenedores principales (servicios) orquestados por Docker Compose.Aplicación Frontend (SPA): Un contenedor Nginx que sirve la aplicación Angular compilada. Es la interfaz del usuario.API Backend (Servidor): Un contenedor Django (con Gunicorn) que expone la API RESTful y maneja la lógica de negocio y el ETL.Base de Datos (Almacén): Un contenedor PostgreSQL que almacena los datos estadísticos para consultas rápidas.graph TD
+    subgraph "Docker Compose Environment"
+        direction LR
+        subgraph "Contenedor Frontend (Nginx)"
+            SPA[Angular SPA]
+        end
+        subgraph "Contenedor Backend (Django)"
+            API[API RESTful (DRF)]
+            ETL[Servicio ETL (Pandas)]
+        end
+        subgraph "Contenedor Base de Datos"
+            DB[(PostgreSQL)]
+        end
+    end
+
+    Admin(Administrador) -- "HTTPs (Carga)" --> API
+    Usuario(Usuario) -- "HTTPs (Visita)" --> SPA
+    SPA -- "JSON/HTTPs (Pide datos)" --> API
+    API -- "Lee/Escribe" --> DB
+    API -- "Procesa" --> ETL
+    ETL -- "Escribe" --> DB
+
+Nivel 3: ComponentesDetalle de los componentes internos clave dentro de los contenedores de Backend y Frontend.Componentes del Backend (Django)graph TD
+    subgraph "Contenedor Backend (Django)"
+        direction TB
+        Admin(Admin) --> AdminView[Vista de Admin (admin.py)]
+        AdminView -- "Dispara señal" --> ETLService[Servicio ETL (tasks.py)]
+        ETLService -- "Usa Pandas" --> DB[(PostgreSQL)]
+        
+        SPA[Angular SPA] --> APIEndpoint[Endpoints API (views.py)]
+        APIEndpoint -- "Usa" --> Serializers[Serializadores (serializers.py)]
+        APIEndpoint -- "Usa ORM" --> QueryEngine[Motor de Consultas (orm.py)]
+        QueryEngine --> DB
+        Serializers -- "Formatea" --> QueryEngine
+    end
+
+Componentes del Frontend (Angular)graph TD
+    subgraph "Contenedor Frontend (SPA)"
+        direction TB
+        Usuario(Usuario) --> Dashboard[DashboardComponent (Smart)]
+        Dashboard --> Filter[FilterComponent (Dumb)]
+        Dashboard --> Plot[PlotComponent (Dumb)]
+        Dashboard --> Table[TableComponent (Dumb)]
+        
+        Dashboard -- "Realiza llamadas" --> ApiService[ApiService (Servicio)]
+        ApiService -- "HTTP" --> Backend(API Backend)
+
+        Dashboard -- "Gestiona" --> State[Estado (ej. NgRx / Signal Store)]
+        Filter -- "Actualiza" -> State
+        State -- "Notifica" --> Plot
+        State -- "Notifica" --> Table
+    end
+
+5. Diagramas de Secuencia (Flujos Clave)5.1. Flujo de Carga de Datos (ETL)El Administrador usa el sitio de Django Admin estándar (es más seguro y rápido que construir una vista desde cero).sequenceDiagram
+    participant Admin
+    participant DjangoAdmin as Django Admin (UI)
+    participant DjangoBackend as Backend (views.py/models.py)
+    participant ETLService as Servicio ETL (Pandas)
+    participant DB as PostgreSQL DB
+
+    Admin->>DjangoAdmin: 1. Accede y se autentica
+    Admin->>DjangoAdmin: 2. Selecciona Modelo 'FuenteDeDatos' y carga .xlsx
+    DjangoAdmin->>DjangoBackend: 3. HTTP POST (Guarda modelo)
+    activate DjangoBackend
+    DjangoBackend->>DjangoBackend: 4. Dispara señal post_save
+    DjangoBackend->>ETLService: 5. Llama a 'procesar_excel(file)'
+    deactivate DjangoBackend
+    activate ETLService
+    ETLService->>ETLService: 6. Lee Excel con Pandas (Extract)
+    ETLService->>ETLService: 7. Limpia y transforma datos (Transform)
+    ETLService->>DB: 8. Borra datos antiguos (TRUNCATE)
+    ETLService->>DB: 9. Inserta nuevos datos (Load)
+    deactivate ETLService
+    DjangoAdmin-->>Admin: 10. Muestra "Carga Exitosa"
+
+5.2. Flujo de Consulta de Datos (Usuario)El Usuario interactúa con la SPA de Angular, que a su vez consume la API de consulta segura.sequenceDiagram
+    participant Usuario
+    participant AngularSPA as Dashboard (Angular)
+    participant DjangoAPI as Backend API (views.py)
+    participant DB as PostgreSQL DB
+
+    Usuario->>AngularSPA: 1. Selecciona filtros y variables
+    activate AngularSPA
+    AngularSPA->>AngularSPA: 2. Construye objeto JSON de consulta
+    AngularSPA->>DjangoAPI: 3. POST /api/v1/data/query/ (con JSON)
+    activate DjangoAPI
+    DjangoAPI->>DjangoAPI: 4. **[CRÍTICO] Valida y sanea el JSON (No SQL)**
+    DjangoAPI->>DjangoAPI: 5. Construye consulta segura (ORM de Django)
+    DjangoAPI->>DB: 6. Ejecuta consulta SQL parametrizada
+    DB-->>DjangoAPI: 7. Devuelve resultados
+    DjangoAPI->>DjangoAPI: 8. Serializa resultados a JSON
+    DjangoAPI-->>AngularSPA: 9. Devuelve JSON
+    deactivate DjangoAPI
+    AngularSPA->>AngularSPA: 10. Renderiza gráfico (ej. Chart.js)
+    deactivate AngularSPA
+    AngularSPA-->>Usuario: 11. Muestra visualización
+
+6. Diseño de la API (Endpoints Principales)6.1. Endpoint de Carga (Solo Admin)Método: Se usará el admin.py de Django.Modelo (models.py):class FuenteDatos(models.Model):
+    archivo_excel = models.FileField(upload_to='uploads/')
+    fecha_carga = models.DateTimeField(auto_now_add=True)
+    # ... otros metadatos
+
+Señal (signals.py):@receiver(post_save, sender=FuenteDatos)
+def procesar_excel_cargado(sender, instance, created, **kwargs):
+    if created:
+        # Llamar aquí a la lógica ETL con 'instance.archivo_excel.path'
+        iniciar_proceso_etl(instance.archivo_excel.path)
+
+6.2. Endpoint de Esquema (Datos para Filtros)Endpoint: GET /api/v1/data/schema/Respuesta (JSON): Devuelve las columnas, sus tipos y (si son < 10) sus valores únicos.{
+  "columnas": [
+    { "nombre": "semestre", "tipo": "numerico", "valores_unicos": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+    { "nombre": "genero", "tipo": "categorico", "valores_unicos": ["Masculino", "Femenino", "Otro"] },
+    { "nombre": "promedio", "tipo": "numerico", "valores_unicos": null },
+    { "nombre": "materia", "tipo": "categorico", "valores_unicos": null }
+  ]
+}
+
+6.3. Endpoint de Datos CompletosEndpoint: GET /api/v1/data/all/Respuesta (JSON): Devuelve todos los datos (puede ser lento, usar con precaución).[
+  { "semestre": 1, "genero": "Masculino", "promedio": 3.5, "materia": "Calculo I" },
+  { "semestre": 3, "genero": "Femenino", "promedio": 4.1, "materia": "Algebra" },
+  ...
+]
+
+6.4. Endpoint de Consulta Dinámica (Seguro)Endpoint: POST /api/v1/data/query/Petición (JSON Body): El frontend envía qué quiere, no cómo (no SQL).{
+  "dimensiones": ["semestre", "genero"],
+  "metricas": ["AVG(promedio)", "COUNT(id)"],
+  "filtros": [
+    { "columna": "semestre", "operador": "gt", "valor": 3 },
+    { "columna": "genero", "operador": "in", "valor": ["Femenino", "Masculino"] }
+  ]
+}
+
+Respuesta (JSON):[
+  { "semestre": 4, "genero": "Femenino", "AVG(promedio)": 4.1, "COUNT(id)": 34 },
+  { "semestre": 4, "genero": "Masculino", "AVG(promedio)": 3.9, "COUNT(id)": 31 },
+  ...
+]
+
+Implementación (Django): El backend recibe este JSON, lo parsea y construye la consulta usando el ORM, previniendo totalmente la Inyección SQL.7. Resumen para Artículo CientíficoMetodología de SoftwarePara el desarrollo del sistema de visualización, se implementó una arquitectura de 3 niveles (3-Tier), desacoplada, basada en un patrón Cliente-Servidor. Esta arquitectura adhiere estrictamente al principio de Separación de Cerns (SoC), dividiendo el sistema en tres contenedores lógicos y físicos independientes:Nivel de Cliente (Presentación): Una Single Page Application (SPA) desarrollada en Angular, responsable de la renderización de la interfaz y la visualización de datos. Esta capa sigue patrones de diseño MVVM (Model-View-ViewModel) y una arquitectura basada en componentes para su modularidad.Nivel de Aplicación (Lógica): Un servidor backend en Django que expone una API RESTful segura (construida con Django REST Framework). Esta capa sigue el patrón MVT (Model-View-Template), donde la "Plantilla" es la respuesta JSON serializada. Es responsable de la autenticación, la lógica de negocio y la construcción segura de consultas.Nivel de Datos (Persistencia): Una base de datos relacional PostgreSQL, que sirve como el almacén optimizado para las consultas estadísticas.El proceso de ingesta de datos se gestiona a través de un flujo ETL (Extract-Transform-Load). El Administrador carga un archivo .xlsx, que el backend extrae (usando Pandas), transforma (limpiando y validando) y carga (Load) en la base de datos SQL.Finalmente, para garantizar la reproducibilidad científica y la escalabilidad horizontal, la aplicación completa está containerizada usando Docker y su despliegue es gestionado mediante orquestación con Docker Compose, permitiendo replicar el entorno exacto con un solo comando.

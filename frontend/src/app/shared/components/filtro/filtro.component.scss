@@ -1,0 +1,371 @@
+.filtro-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Estilos para información de columna
+.columna-info {
+  margin: 12px 0;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border-left: 3px solid #3f51b5;
+  
+  .info-text {
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #666;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #3f51b5;
+    }
+    
+    strong {
+      color: #333;
+    }
+  }
+  
+  .info-hint {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+  }
+}
+
+// Estilos para selección múltiple con checkboxes
+.valores-checkbox-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  width: 100%;
+  
+  .checkbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+    
+    h5 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      flex: 1;
+    }
+    
+    .checkbox-actions {
+      display: flex;
+      gap: 8px;
+      
+      button {
+        height: 32px;
+        font-size: 12px;
+        padding: 0 12px;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          margin-right: 4px;
+        }
+        
+        &.btn-select-all {
+          color: #4caf50;
+        }
+        
+        &.btn-deselect-all {
+          color: #f44336;
+        }
+        
+        &:disabled {
+          opacity: 0.4;
+        }
+      }
+    }
+  }
+  
+  .checkbox-scroll {
+    max-height: 250px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    
+    mat-checkbox {
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
+  }
+}
+
+// Estilos para el autocomplete de columnas
+::ng-deep {
+  .mat-mdc-autocomplete-panel {
+    .mat-mdc-option {
+      display: flex;
+      align-items: center;
+      
+      .option-icon {
+        margin-right: 8px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.filtros-activos {
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  .filtros-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    .filtro-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px 12px;
+      min-height: 60px;
+      transition: box-shadow 0.2s;
+      
+      &:hover {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      &.editing {
+        border-color: #3f51b5;
+        border-width: 2px;
+        background: #e3f2fd;
+      }
+      
+      .filtro-content {
+        flex: 1;
+        min-width: 0; // Permite que el contenido se trunque
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        
+        .filtro-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          
+          .filtro-columna {
+            font-size: 13px;
+            color: #333;
+            font-weight: 600;
+          }
+          
+          .filtro-operador {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
+          }
+        }
+        
+        .filtro-valor {
+          font-size: 12px;
+          color: #3f51b5;
+          font-weight: 500;
+          word-break: break-word;
+          overflow-wrap: break-word;
+          max-width: 100%;
+          line-height: 1.4;
+        }
+      }
+      
+      .filtro-actions {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        margin-left: 8px;
+        
+        button {
+          width: 28px;
+          height: 28px;
+          min-width: 28px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          ::ng-deep .mat-icon-button-wrapper {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            line-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+        
+        .filtro-edit {
+          color: #3f51b5;
+          
+          &:hover {
+            background: #e3f2fd;
+          }
+        }
+        
+        .filtro-remove {
+          color: #f44336;
+          
+          &:hover {
+            background: #ffebee;
+          }
+        }
+      }
+    }
+  }
+}
+
+.filtro-form {
+  h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  form {
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 2fr;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+      
+      @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .form-field-col {
+      display: flex;
+      flex-direction: column;
+      
+      &.columna-field {
+        min-width: 0;
+      }
+      
+      &.operador-field {
+        min-width: 180px;
+      }
+      
+      &.valor-field {
+        min-width: 0;
+      }
+    }
+    
+    .full-width {
+      width: 100%;
+    }
+    
+    mat-form-field {
+      width: 100%;
+      
+      mat-icon {
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+    }
+    
+    .button-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 8px;
+      
+      .btn-cancelar {
+        mat-icon {
+          margin-right: 4px;
+        }
+      }
+      
+      .btn-agregar {
+        min-width: 200px;
+        height: 48px;
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+

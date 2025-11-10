@@ -1,0 +1,230 @@
+<div class="desercion-layout">
+  <!-- Sidebar de Filtros (Izquierda) -->
+  <aside class="filtros-sidebar">
+    <div class="sidebar-header">
+      <mat-icon>filter_list</mat-icon>
+      <h3>Filtros de Análisis</h3>
+    </div>
+
+    @if (cargandoFiltros) {
+      <div class="loading-filtros">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Cargando filtros...</span>
+      </div>
+    } @else {
+      <div class="filtros-container">
+        <!-- Filtro de Tipo de Programa (Pregrado/Posgrado) -->
+        <div class="filtro-group filtro-tipo-programa">
+          <label class="filtro-label">Tipo de Programa</label>
+          <mat-button-toggle-group 
+            [(ngModel)]="tipoPrograma"
+            (change)="onTipoProgramaChange()"
+            class="tipo-programa-toggle">
+            <mat-button-toggle value="todos">Todos</mat-button-toggle>
+            <mat-button-toggle value="pregrado">Pregrado</mat-button-toggle>
+            <mat-button-toggle value="posgrado">Posgrado</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        @for (filtro of filtrosDisponibles; track filtro.columna) {
+          @if (filtro.tipo === 'color-check') {
+            <!-- Checkboxes especiales para separar por color -->
+            <div class="filtro-group">
+              <label class="filtro-label">{{ filtro.nombre }}</label>
+              
+              <div class="filtro-color-check">
+                <mat-checkbox 
+                  [(ngModel)]="filtro.usarComoColor"
+                  (change)="onFiltroChange()"
+                  color="primary">
+                  Separar por color
+                </mat-checkbox>
+              </div>
+
+              @if (!filtro.usarComoColor) {
+                <!-- Si NO se usa para color, mostrar selector múltiple -->
+                <mat-form-field appearance="outline" class="filtro-field">
+                  <mat-label>Seleccionar valores</mat-label>
+                  <mat-select 
+                    [(ngModel)]="filtro.valoresSeleccionados"
+                    (selectionChange)="onFiltroChange()"
+                    multiple>
+                    @for (valor of filtro.valores; track valor) {
+                      <mat-option [value]="valor">{{ valor }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+            </div>
+          } @else {
+            <!-- Filtros normales -->
+            <div class="filtro-group">
+              <label class="filtro-label">{{ filtro.nombre }}</label>
+              <mat-form-field appearance="outline" class="filtro-field">
+                @if (filtro.tipo === 'single') {
+                  <mat-select 
+                    [(ngModel)]="filtro.valorSeleccionado"
+                    (selectionChange)="onFiltroChange()">
+                    <mat-option [value]="undefined">Todos</mat-option>
+                    @for (valor of filtro.valores; track valor) {
+                      <mat-option [value]="valor">{{ valor }}</mat-option>
+                    }
+                  </mat-select>
+                } @else {
+                  <mat-select 
+                    [(ngModel)]="filtro.valoresSeleccionados"
+                    (selectionChange)="onFiltroChange()"
+                    multiple>
+                    @for (valor of filtro.valores; track valor) {
+                      <mat-option [value]="valor">{{ valor }}</mat-option>
+                    }
+                  </mat-select>
+                }
+              </mat-form-field>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Botón para limpiar filtros -->
+      @if (hayFiltrosActivos) {
+        <div class="filtros-actions">
+          <button 
+            mat-raised-button 
+            color="warn" 
+            (click)="limpiarFiltros()"
+            class="btn-limpiar">
+            <mat-icon>clear</mat-icon>
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <!-- Opciones Avanzadas (Plegables) -->
+      <div class="opciones-avanzadas-section">
+        <button 
+          mat-button 
+          color="primary"
+          (click)="mostrarOpcionesAvanzadas = !mostrarOpcionesAvanzadas"
+          class="toggle-avanzadas">
+          <mat-icon>{{ mostrarOpcionesAvanzadas ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ mostrarOpcionesAvanzadas ? 'Ocultar' : 'Mostrar' }} Opciones Avanzadas
+        </button>
+
+        @if (mostrarOpcionesAvanzadas) {
+          <div class="opciones-avanzadas-panel">
+            <h4>Apoyos y Descuentos</h4>
+            <p class="hint">Seleccione para desagregar por color en los gráficos</p>
+            <div class="apoyos-list">
+              @for (apoyo of columnasApoyos; track apoyo) {
+                <mat-checkbox 
+                  class="apoyo-checkbox"
+                  [checked]="isApoyoSeleccionado(apoyo)"
+                  (change)="onApoyoChange(apoyo, $event.checked)"
+                  color="primary">
+                  {{ apoyo.replace('_', ' ') | titlecase }}
+                </mat-checkbox>
+              }
+            </div>
+            @if (apoyosSeleccionados.length > 0) {
+              <div class="apoyos-seleccionados-info">
+                <mat-icon>info</mat-icon>
+                <span>{{ apoyosSeleccionados.length }} apoyo(s) seleccionado(s)</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </aside>
+
+  <!-- Contenido Principal (Derecha) -->
+  <main class="contenido-principal">
+    <!-- Header con KPI -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <mat-icon>school_off</mat-icon>
+        <div>
+          <h1>Análisis de Deserción Estudiantil</h1>
+          <p class="subtitle">Visualización y seguimiento de indicadores clave</p>
+        </div>
+      </div>
+
+      <!-- KPI Card -->
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-main">
+            <div class="kpi-icon">
+              <mat-icon>trending_down</mat-icon>
+            </div>
+            <div class="kpi-data">
+              <div class="kpi-percentage">{{ kpiDesercion.porcentaje.toFixed(1) }}%</div>
+              <div class="kpi-label">Tasa de Deserción</div>
+            </div>
+          </div>
+          <div class="kpi-details">
+            <div class="kpi-detail">
+              <span class="detail-label">Total:</span>
+              <span class="detail-value">{{ kpiDesercion.total | number }}</span>
+            </div>
+            <div class="kpi-detail desertores">
+              <span class="detail-label">Desertores:</span>
+              <span class="detail-value">{{ kpiDesercion.desertores | number }}</span>
+            </div>
+            <div class="kpi-detail activos">
+              <span class="detail-label">Activos:</span>
+              <span class="detail-value">{{ kpiDesercion.noDesertores | number }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="graficos-grid">
+      <!-- Evolución Temporal -->
+      <mat-card class="grafico-card full-width">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>timeline</mat-icon>
+            Evolución Temporal de la Deserción
+          </mat-card-title>
+          <mat-card-subtitle>
+            Porcentaje de deserción por período de ingreso
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <app-grafico
+            [data]="datosEvolucionTemporal"
+            [layout]="layoutEvolucionTemporal"
+            [config]="configEvolucionTemporal"
+            [loading]="cargando"
+            [datosOriginales]="datosOriginalesEvolucion">
+          </app-grafico>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Comparativo -->
+      <mat-card class="grafico-card full-width">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>compare_arrows</mat-icon>
+            Análisis Comparativo
+          </mat-card-title>
+          <mat-card-subtitle>
+            Comparación de deserción por diferentes dimensiones
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <app-grafico
+            [data]="datosComparativo"
+            [layout]="layoutComparativo"
+            [config]="configComparativo"
+            [loading]="cargando"
+            [datosOriginales]="datosOriginalesComparativo">
+          </app-grafico>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </main>
+</div>

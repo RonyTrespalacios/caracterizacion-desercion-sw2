@@ -1,0 +1,229 @@
+.variable-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; // Permite que flex shrink funcione
+}
+
+.selector-header {
+  margin-bottom: 20px;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .variable-count {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+  
+  .filtro-texto {
+    width: 100%;
+    
+    mat-icon {
+      cursor: pointer;
+    }
+  }
+  
+  .filtro-tipo {
+    width: 100%;
+  }
+  
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.variables-lista {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; // Prevenir scroll horizontal durante drag
+  max-height: 600px;
+  
+  .variable-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0; // Permite shrink
+    
+    &:hover {
+      background: #e8eaf6;
+      box-shadow: 0 2px 8px rgba(63, 81, 181, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    &.variable-added {
+      animation: pulse-success 0.6s ease-out;
+    }
+    
+    .variable-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+    }
+    
+    .variable-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; // Permite text-overflow
+      margin-right: 8px;
+      
+      .variable-nombre {
+        font-size: 13px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .variable-tipo {
+        font-size: 11px;
+        color: #666;
+        text-transform: capitalize;
+      }
+    }
+    
+    .variable-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0; // Los botones no se reducen
+      
+      button {
+        transform: scale(0.65);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        &:not(:disabled):hover {
+          transform: scale(0.7);
+        }
+        
+        &:not(:disabled):active {
+          animation: button-click 0.3s ease-out;
+        }
+        
+        &:disabled {
+          opacity: 0.25;
+          cursor: not-allowed;
+        }
+        
+        &.button-success {
+          background-color: #4caf50 !important;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+  
+  .empty-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #999;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// Animaciones
+@keyframes pulse-success {
+  0% {
+    transform: scale(1) translateY(0);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+@keyframes button-click {
+  0% {
+    transform: scale(0.65);
+  }
+  50% {
+    transform: scale(0.75);
+  }
+  100% {
+    transform: scale(0.65);
+  }
+}
+
+/* Estilos globales para drag and drop */
+::ng-deep .cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #e0e0e0;
+  border: 2px dashed #999;
+}
+
+::ng-deep .cdk-drag-preview {
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  z-index: 9999 !important;
+  cursor: grabbing !important;
+  
+  // Eliminar delay y hacer el drag más fluido
+  transition: none !important;
+  
+  .variable-item {
+    background: white;
+    border: 2px solid #3f51b5;
+  }
+}
+
+// Asegurar que el drag tenga el z-index más alto
+::ng-deep .cdk-drag-animating {
+  z-index: 9999 !important;
+}
+
+::ng-deep .cdk-drop-list-dragging {
+  cursor: grabbing !important;
+}
+
+// Optimización para el rendimiento del drag
+::ng-deep .cdk-drag {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+}
+

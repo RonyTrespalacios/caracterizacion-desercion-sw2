@@ -1,0 +1,49 @@
+<div 
+  class="drop-zone"
+  [class.has-items]="tieneVariables">
+  
+  <!-- Header -->
+  <div class="drop-zone-header">
+    <mat-icon class="zone-icon">{{ icono }}</mat-icon>
+    <div class="zone-info">
+      <h4>{{ titulo }}</h4>
+      @if (descripcion && descripcion.trim() !== '') {
+        <p class="zone-desc">{{ descripcion }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Variables agregadas -->
+  @if (tieneVariables) {
+    <div class="variables-agregadas">
+      @for (variable of variables; track variable.nombre) {
+        <div class="variable-chip">
+          <mat-icon 
+            class="chip-icon"
+            [style.color]="getColorPorTipo(variable.tipo)">
+            {{ getIconoPorTipo(variable.tipo) }}
+          </mat-icon>
+          <span class="chip-nombre">{{ variable.nombre }}</span>
+          <button 
+            mat-icon-button 
+            class="chip-remove"
+            (click)="removerVariable(variable)"
+            matTooltip="Remover">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Estado vacío -->
+  @if (!tieneVariables) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">{{ icono }}</mat-icon>
+      @if (descripcion && descripcion.trim() !== '') {
+        <p class="hint">{{ descripcion }}</p>
+      }
+    </div>
+  }
+</div>
+

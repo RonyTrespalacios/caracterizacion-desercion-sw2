@@ -1,0 +1,200 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* Estilos personalizados para la aplicación */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.drag-item {
+  cursor: move;
+  padding: 12px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin: 8px 0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.drop-zone {
+  min-height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  
+  &.drag-over {
+    border-color: #3f51b5;
+    background: #e8eaf6;
+  }
+  
+  &.has-items {
+    border-style: solid;
+    border-color: #3f51b5;
+    background: white;
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+/* Estilos para gráficos */
+.chart-container {
+  width: 100%;
+  height: 500px;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para filtros */
+.filter-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .filter-group {
+    margin-bottom: 20px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .filter-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+  }
+}
+
+/* Estilos globales para CDK Drag and Drop */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10000 !important;
+  cursor: grabbing !important;
+  opacity: 1 !important;
+  
+  // Eliminar cualquier transición para hacer el drag instantáneo
+  transition: none !important;
+  transform: none !important;
+  
+  // Optimización de rendimiento
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
+  // CRÍTICO: Prevenir que el preview expanda su contenedor padre
+  position: fixed !important;
+  pointer-events: none;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #e0e0e0;
+  border: 2px dashed #999;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-animating {
+  transition: transform 150ms cubic-bezier(0, 0, 0.2, 1);
+  z-index: 10000 !important;
+}
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  // Optimización para mejor rendimiento
+  will-change: transform;
+  
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Prevenir selección de texto durante el drag
+.cdk-drag-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+// Asegurar que las drop zones sean visibles sobre otros elementos
+.cdk-drop-list {
+  position: relative;
+  z-index: 10;
+  
+  &.cdk-drop-list-receiving {
+    z-index: 100;
+  }
+}
+
+// Prevenir que los contenedores con scroll horizontal se expandan durante drag
+.cdk-drop-list-dragging {
+  .cdk-drag-preview {
+    // El preview NO debe estar dentro del contenedor, debe estar en el body
+    position: fixed !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+}
+

@@ -1,0 +1,266 @@
+# ============================================
+# Sistema de Análisis de Trayectoria Estudiantil
+# .gitignore General
+# ============================================
+
+# ============================================
+# Python / Django
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static
+*.pot
+*.pyc
+
+# ============================================
+# Node.js / Angular
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Angular
+/dist
+/tmp
+/out-tsc
+/bazel-out
+/.angular/
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+
+# ============================================
+# IDEs y Editores
+# ============================================
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# IntelliJ IDEA / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================
+# Sistemas Operativos
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+docker-compose.override.yml
+
+# ============================================
+# Variables de Entorno y Secretos
+# ============================================
+.env
+.venv
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.env
+secrets/
+*.pem
+*.key
+*.cert
+*.crt
+
+# ============================================
+# Archivos de Datos y Media
+# ============================================
+# Archivos Excel/CSV grandes (mantener estructura pero no datos)
+*.xlsx
+*.xls
+*.csv
+uploads/
+media/uploads/*
+!media/uploads/.gitkeep
+
+# Backups
+*.bak
+*.backup
+*.old
+*.orig
+
+# ============================================
+# Logs y Temporales
+# ============================================
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# ============================================
+# Testing
+# ============================================
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+.hypothesis/
+.pytest_cache/
+coverage/
+*.cover
+.hypothesis/
+.pytest_cache/
+test-results/
+junit.xml
+
+# ============================================
+# Documentación Generada
+# ============================================
+docs/_build/
+site/
+*.pdf
+!documentation/*.pdf
+
+# ============================================
+# Misceláneos
+# ============================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.lz
+*.lzma
+*.z
+
+# Archivos de configuración local
+config.local.*
+settings.local.*
+
+# Archivos de sistema
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Específicos del Proyecto
+# ============================================
+# Mantener estructura pero ignorar contenido de datos
+/db/*.xlsx
+/db/*.csv
+!/db/.gitkeep
+
+# Archivos de desarrollo
+deprecated/
+*.ipynb_checkpoints
+

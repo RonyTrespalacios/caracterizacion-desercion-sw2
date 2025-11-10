@@ -1,0 +1,69 @@
+Herramienta de Análisis y Visualización de Trayectoria Estudiantil
+1. Resumen Ejecutivo
+El proyecto se centra en el desarrollo de una herramienta de inteligencia de negocios para la Universidad de los Llanos, con el objetivo de transformar y utilizar datos de los estudiantes para que se puedan visualizar de forma fácil e interactiva. Actualmente, la Universidad de los Llanos maneja grandes volúmenes de datos (matrículas, promedios, información sociodemográfica, entre otros), pero carecen de una estrategia que facilite la consolidación, depuración y análisis para la toma de decisiones estratégicas desde cada Facultad, Comité de Programa o Grupo de Acreditación; incluyendo la prevención de la deserción académica.
+Esta herramienta se presenta como un panel de control analítico con una interfaz web amigable, diseñada para que usuarios no técnicos, como directores de programa, puedan cargar y explorar bases de datos de forma autónoma. A través de filtros dinámicos y visualizaciones automáticas, permite identificar patrones, comparar variables y entender tendencias de manera ágil y sencilla. El objetivo principal es ofrecer un acceso fácil y proactivo a la información, facilitando la toma de decisiones basada en datos claros y accesibles.
+2. Flujos de Usuario Principales
+Flujo 1: Carga y Diagnóstico Inicial de Datos
+El proceso inicia con un administrador que carga un nuevo conjunto de datos. El sistema valida que el archivo de entrada cumpla con las condiciones de formato (.csv o .xlsx) y con las variables definidas en el diccionario previamente especificado por el administrador. Esto garantiza que la información sea estandarizada. Una vez verificado, el sistema presenta un panel de control con estadísticas generales y una previsualización inicial de los datos, como el número total de estudiantes, su distribución por género y programa académico, y un resumen de cohortes.
+Flujo 2: Análisis Interactivo y Descubrimiento
+Este es el flujo central. El usuario navega al Explorador de Datos, donde utiliza un panel de filtros interactivos para visualizar los campos que se van a incluir en el análisis (ej. por cohorte, género, estado, cohorte, entre otros). Al seleccionar las variables que desea cruzar, la herramienta genera automáticamente una visualización relevante y dinámica que podrá ser personalizada en función de los requerimientos del usuario encargado de generar el reporte(ej. gráficos de barras comparativos o medidas que permitan presentar algunas medidas).
+Flujo 3: Exportación y Difusión de Hallazgos
+Para compartir los hallazgos, el usuario puede identificar un gráfico o tabla y utilizar las opciones de exportación. La herramienta diferencia entre exportar la visualización (como imagen PNG o PDF) y los datos subyacentes (como archivo CSV), y también incluye una funcionalidad de Copiar al Portapapeles para una rápida inserción en informes y presentaciones.
+3. Especificaciones Técnicas Detalladas
+3.1 Arquitectura y Componentes del Sistema
+El sistema se compone de tres módulos principales que trabajan en conjunto para ofrecer la experiencia de usuario completa, dentro de los cuales se tiene los siguientes detalles:
+●	Módulo de Carga y Procesamiento de Datos:
+○	Recibe archivos de datos en formatos .csv y .xlsx.
+○	Manejo de Datos Sensibles: Al cargar el archivo, la herramienta debe ejecutar un proceso de seguridad para eliminar automáticamente datos sensibles como CODIGO_INST, NOMBRE1, NOMBRE2, APELLIDO1, APELLIDO2, esto atendiendo a las normas de la Universidad y a nivel de nacional para el manejo adecuado a Ley de Protección de Datos Personales (Ley 1581 de 2012)
+○	Almacena los datos temporalmente en una estructura de datos optimizada (SQL) en memoria para un acceso rápido. Esto con el objetivo de que el tiempo de respuesta del software ante cambios gráficos de manera eficiente.
+●	Módulo de Análisis y Visualización:
+○	Se encarga de la lógica para el filtrado dinámico de datos.
+○	Contiene el motor de gráficos que selecciona automáticamente el tipo de visualización más adecuado según las variables seleccionadas. Dándole la opción al usuario de cambiar el tipo de gráfico y ver detalles de datos puntuales interactivamente.
+○	Genera la vista interactiva con características como tooltips y animaciones.
+●	Módulo de Exportación:
+○	Permite la conversión de la visualización actual en formatos de imagen (.png, .svg) y de documento (.pdf).
+○	Ofrece la opción de exportar los datos filtrados como un archivo de texto plano (.csv).
+○	Implementa la funcionalidad "Copiar al Portapapeles" para la imagen del gráfico.
+3.2 Tipos de Visualizaciones con Variables Específicas
+El software generará gráficos, utilizando las variables proporcionadas, para responder a preguntas clave. Cada gráfico debe contar con filtros dinámicos que permitan refinar el análisis por PROGRAMA, FACULTAD, PERIODO_INGRESO, y ULTIMO_ESTADO.
+A. Análisis de Deserción y Rendimiento Académico
+●	Gráfico de Barras Agrupadas: Deserción por Demografía.
+○	Eje X: TIPO_DESERCION (o ULTIMO_ESTADO).
+○	Eje Y: Conteo de estudiantes.
+○	Agrupación: SEXO, GRUPO_POBLACIONAL, o EDAD_INGRESO (categorizada en rangos).
+○	Objetivo: Identificar si la deserción es más prevalente en ciertos grupos demográficos.
+●	Gráfico de Puntos (Scatter Plot): Rendimiento vs. Reprobación.
+○	Eje X: PROMEDIO_CARRERA.
+○	Eje Y: CREDITOS_REPROBADOS o CANTIDAD_MATERIAS_REPROBADAS.
+○	Objetivo: Visualizar la correlación entre el promedio académico y la reprobación. Los puntos de alto CREDITOS_REPROBADOS y bajo PROMEDIO_CARRERA representan estudiantes de alto riesgo. La herramienta podría colorear los puntos por ULTIMO_ESTADO (ej. rojo para desertores) para mayor claridad.
+●	Gráfico de Líneas: Evolución del Promedio Semestral.
+○	Eje X: SEMESTRES_REGISTRADOS (o un campo similar que represente la progresión a lo largo del tiempo).
+○	Eje Y: PROMEDIO_PRIMER_SEMESTRE o PROMEDIO_CARRERA (calculado por semestre).
+○	Objetivo: Mostrar la tendencia del rendimiento académico a través del tiempo y comparar el desempeño de diferentes cohortes o programas.
+B. Estadísticas de Población Estudiantil
+●	Gráfico de Barras Apiladas: Composición de la Matrícula.
+○	Eje X: PERIODO_INGRESO.
+○	Eje Y: Conteo de estudiantes (conteo/porcentaje_MATRICULADO).
+○	Apilado: FACULTAD o PROGRAMA.
+○	Objetivo: Ver la evolución de la matrícula por periodo y la contribución de cada facultad o programa. Esto permite identificar tendencias de crecimiento o disminución.
+●	Gráfico de Árbol (Treemap) o Gráfico Circular: Distribución Demográfica.
+○	Categorías: GRUPO_ETNICO, DISCAPACIDAD, ESTRATO, TIPO_COLEGIO.
+○	Valores: Conteo de estudiantes.
+○	Objetivo: Proporcionar una visión rápida y comparativa de la composición de la población estudiantil en categorías clave. Los treemaps son especialmente útiles para jerarquías como DEPARTAMENTO_RESIDENCIA vs. CIUDAD_RESIDENCIA.
+●	Gráfico de Barras: Impacto Geográfico.
+○	Eje X: RESIDE_VILLAVICENCIO, RESIDE_META o CIUDAD_RESIDENCIA.
+○	Eje Y: Conteo de estudiantes.
+○	Objetivo: Determinar la procedencia de los estudiantes para entender el alcance geográfico de la universidad y su impacto regional.
+C. Análisis de Ayudas y Apoyos
+●	Gráfico de Barras: Beneficiarios de Apoyos Financieros.
+○	Eje X: DESCUENTO_ELECTORAL, POLITICA_GRATUIDAD, CREDITO_ICETEX, DESCUENTO_EXCELENCIA, etc. (como categorías).
+○	Eje Y: Conteo de estudiantes.
+○	Objetivo: Contar cuántos estudiantes se benefician de cada tipo de ayuda o descuento, lo que es crucial para la gestión de bienestar estudiantil.
+3.3 Requisitos de Interacción y Usabilidad
+●	Panel de Filtros: Todos los filtros (listas desplegables, checkboxes, sliders) deben reaccionar en tiempo real, actualizando los gráficos sin necesidad de un botón de "Aplicar".
+●	Tooltips: Al pasar el cursor sobre cualquier elemento de un gráfico (una barra, un punto, un segmento), se debe mostrar un tooltip con el valor exacto y el nombre de la categoría.
+●	Diseño Adaptativo: La interfaz debe ser completamente responsive, adaptándose a diferentes tamaños de pantalla (escritorio, tablet, móvil) sin perder funcionalidad ni legibilidad.
+3.4 Requisitos de Exportación
+●	Calidad de Exportación: La exportación a imagen (.png, .svg) y documento (.pdf) debe ser de alta calidad y mantener la apariencia del gráfico en la pantalla.
+●	Diferenciación de Datos: Debe quedar claro para el usuario si está exportando la visualización o el conjunto de datos filtrado.
+●	Portabilidad: La función de "Copiar al Portapapeles" debe ser una característica destacada y fácil de usar.

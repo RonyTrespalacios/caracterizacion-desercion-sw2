@@ -1,0 +1,162 @@
+.drop-zone {
+  min-height: 80px;
+  padding: 12px;
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 10;
+  
+  &.drag-over {
+    border-color: #3f51b5;
+    background: #e8eaf6;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(63, 81, 181, 0.2);
+    z-index: 100;
+  }
+  
+  &.has-items {
+    border-style: solid;
+    border-color: #3f51b5;
+    background: white;
+  }
+}
+
+.drop-zone-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  
+  .zone-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    color: #3f51b5;
+  }
+  
+  .zone-info {
+    flex: 1;
+    
+    h4 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .zone-desc {
+      margin: 2px 0 0 0;
+      font-size: 11px;
+      color: #666;
+      
+      &:empty {
+        display: none;
+      }
+    }
+  }
+}
+
+.variables-agregadas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  
+  .variable-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #e3f2fd;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #bbdefb;
+    }
+    
+    .chip-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+    
+    .chip-nombre {
+      margin-right: 4px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .chip-remove {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      
+      ::ng-deep .mat-icon-button-wrapper {
+        padding: 0;
+      }
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  color: #999;
+  min-height: 40px;
+  
+  .empty-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+    opacity: 0.3;
+  }
+  
+  p {
+    margin: 2px 0;
+    font-size: 11px;
+    text-align: center;
+    
+    &.hint {
+      font-size: 10px;
+      color: #bbb;
+    }
+  }
+}
+
+/* Animaciones */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.drop-zone.drag-over {
+  animation: pulse 1s infinite;
+}
+

@@ -1,0 +1,92 @@
+<mat-sidenav-container class="sidenav-container">
+  <!-- Sidenav -->
+  <mat-sidenav 
+    #sidenav 
+    mode="side" 
+    [opened]="sidenavOpen"
+    class="sidenav">
+    
+    <!-- Logo Header -->
+    <div class="sidenav-header">
+      <div class="logos-container">
+        <img 
+          src="assets/unillanos_logo_225x225.png" 
+          alt="Universidad de los Llanos" 
+          class="logo-unillanos">
+        <img 
+          src="assets/fcbi_logo_128x200.png" 
+          alt="Facultad de Ciencias Básicas e Ingeniería" 
+          class="logo-fcbi">
+      </div>
+      <div class="header-text">
+        <h2>Trayectoria Estudiantil</h2>
+        <p>Sistema de Análisis y Seguimiento</p>
+      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="sidenav-nav">
+      <a mat-button routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a mat-button routerLink="/explorador" routerLinkActive="active" class="nav-item">
+        <mat-icon>explore</mat-icon>
+        <span>Explorador de Datos</span>
+      </a>
+      <a mat-button routerLink="/desercion" routerLinkActive="active" class="nav-item">
+        <mat-icon>school</mat-icon>
+        <span>Análisis de Deserción</span>
+      </a>
+    </nav>
+
+    <!-- Footer con versión -->
+    <div class="sidenav-footer">
+      <p class="version">v1.0.0</p>
+      <p class="copyright">© 2025 Unillanos - FCBI</p>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main content -->
+  <mat-sidenav-content>
+    <!-- Toolbar -->
+    <mat-toolbar class="main-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()" class="menu-toggle">
+        <mat-icon>menu</mat-icon>
+      </button>
+      
+      <!-- Mobile logos -->
+      <div class="toolbar-logos-mobile">
+        <img 
+          src="assets/unillanos_logo_225x225.png" 
+          alt="Unillanos" 
+          class="toolbar-logo">
+      </div>
+      
+      <span class="toolbar-title">{{ title }}</span>
+      <span class="spacer"></span>
+      
+      <!-- Desktop logos -->
+      <div class="toolbar-logos-desktop">
+        <img 
+          src="assets/fcbi_logo_128x200.png" 
+          alt="FCBI" 
+          class="toolbar-logo-fcbi">
+        <img 
+          src="assets/unillanos_logo_225x225.png" 
+          alt="Unillanos" 
+          class="toolbar-logo-unillanos">
+      </div>
+      
+      <button mat-icon-button matTooltip="Ayuda">
+        <mat-icon>help_outline</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <!-- Router outlet -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

@@ -1,0 +1,172 @@
+<div class="data-explorer-container">
+  <!-- Header -->
+  <div class="explorer-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>explore</mat-icon>
+        Explorador de Datos
+      </h1>
+      <p class="subtitle">Analiza y visualiza datos de trayectoria estudiantil de forma interactiva</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="warn" (click)="resetear()">
+        <mat-icon>refresh</mat-icon>
+        Resetear
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Layout: Nuevo diseño -->
+  <div class="explorer-layout-new">
+    
+    <!-- Filtros: Ocupan todo el ancho arriba (colapsable) -->
+    <div class="filtros-section">
+      <mat-expansion-panel class="filtros-panel" [expanded]="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>filter_list</mat-icon>
+            Filtros
+            @if (filtrosActivos.length > 0) {
+              <mat-chip class="filtro-count">{{ filtrosActivos.length }}</mat-chip>
+            }
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <app-filtro
+          [columnas]="columnas"
+          [filtrosActivos]="filtrosActivos"
+          (filtroAgregado)="onFiltroAgregado($event)"
+          (filtroRemovido)="onFiltroRemovido($event)"
+          (filtrosLimpiados)="onFiltrosLimpiados()">
+        </app-filtro>
+      </mat-expansion-panel>
+    </div>
+    
+    <!-- Sección Superior: Configuración Horizontal -->
+    <div class="config-section">
+      <mat-card class="config-card">
+        <mat-card-content>
+          <div class="config-horizontal">
+            
+            <!-- Tipo de Gráfico -->
+            <div class="config-item tipo-grafico">
+              <h3>
+                <mat-icon>insert_chart</mat-icon>
+                Tipo de Gráfico
+              </h3>
+              <mat-button-toggle-group 
+                [(value)]="tipoGraficoSeleccionado"
+                (valueChange)="onTipoGraficoChange($event)"
+                class="chart-types-compact">
+                @for (tipo of tiposGraficos; track tipo.value) {
+                  <mat-button-toggle 
+                    [value]="tipo.value"
+                    [matTooltip]="tipo.label">
+                    <mat-icon>{{ tipo.icon }}</mat-icon>
+                  </mat-button-toggle>
+                }
+              </mat-button-toggle-group>
+            </div>
+
+            <!-- Ejes -->
+            <div class="config-item ejes">
+              <h3>
+                <mat-icon>straighten</mat-icon>
+                Ejes
+              </h3>
+              <div class="ejes-horizontal">
+                <app-drop-zone
+                  titulo="Eje X"
+                  descripcion=""
+                  icono="straighten"
+                  [aceptaTipos]="['numerico', 'categorico']"
+                  [multiple]="false"
+                  [variables]="variablesEjeX"
+                  (variableRemovida)="onVariableRemovidaX($event)">
+                </app-drop-zone>
+
+                <div class="eje-y-with-metric">
+                  <app-drop-zone
+                    titulo="Eje Y"
+                    descripcion=""
+                    icono="height"
+                    [aceptaTipos]="['numerico']"
+                    [multiple]="false"
+                    [variables]="variablesEjeY"
+                    (variableRemovida)="onVariableRemovidaY($event)">
+                  </app-drop-zone>
+                  
+                  <!-- Selector de métrica (solo visible si hay variable en eje Y) -->
+                  @if (variablesEjeY.length > 0) {
+                    <div class="metrica-selector">
+                      <mat-form-field appearance="outline" class="metrica-field">
+                        <mat-label>Agrupamiento</mat-label>
+                        <mat-select 
+                          [value]="variablesEjeY[0].metrica || 'AVG'"
+                          (selectionChange)="onMetricaCambiada($event.value)">
+                          @for (metrica of metricasDisponibles; track metrica.value) {
+                            <mat-option [value]="metrica.value">
+                              {{ metrica.label }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  }
+                </div>
+
+                <app-drop-zone
+                  titulo="Color"
+                  descripcion=""
+                  icono="palette"
+                  [aceptaTipos]="['categorico', 'numerico']"
+                  [multiple]="false"
+                  [variables]="variablesColor"
+                  (variableRemovida)="onVariableRemovidaColor($event)">
+                </app-drop-zone>
+              </div>
+            </div>
+
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Sección Inferior: 2 Columnas -->
+    <div class="content-section">
+      
+      <!-- Columna 1: Variables (1/4) -->
+      <div class="variables-panel">
+        <app-variable-selector
+          [variables]="variablesDisponibles"
+          [variablesEnEjeX]="variablesEjeX"
+          [variablesEnEjeY]="variablesEjeY"
+          [variablesEnColor]="variablesColor"
+          titulo="Variables Disponibles"
+          (agregarEjeX)="onVariableAgregadaX($event)"
+          (agregarEjeY)="onVariableAgregadaY($event)"
+          (agregarColor)="onVariableAgregadaColor($event)">
+        </app-variable-selector>
+      </div>
+
+      <!-- Columna 2: Visualización (3/4) -->
+      <div class="visualization-panel">
+        <!-- Gráfico -->
+        <mat-card class="grafico-card">
+          <mat-card-content>
+            <app-grafico
+              [data]="datosGrafico"
+              [layout]="layoutGrafico"
+              [config]="configGrafico"
+              [loading]="cargando"
+              [datosOriginales]="datosOriginales">
+            </app-grafico>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      
+    </div>
+  </div>
+</div>
+

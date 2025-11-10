@@ -1,0 +1,450 @@
+.data-explorer-container {
+  width: 100%;
+  min-height: 100%;
+}
+
+.explorer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .header-content {
+    h1 {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+      
+      mat-icon {
+        margin-right: 12px;
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    .subtitle {
+      margin: 8px 0 0 44px;
+      font-size: 14px;
+      color: #666;
+    }
+  }
+  
+  .header-actions {
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Nuevo layout: filtros arriba, config horizontal, 2 columnas abajo
+.explorer-layout-new {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: calc(100vh - 200px);
+}
+
+// Sección de filtros: ocupa todo el ancho (colapsable)
+.filtros-section {
+  .filtros-panel {
+    mat-expansion-panel-header {
+      mat-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+        
+        .filtro-count {
+          margin-left: 8px;
+          background: #3f51b5;
+          color: white;
+          font-size: 12px;
+          min-height: 24px;
+          height: 24px;
+          padding: 0 8px;
+        }
+      }
+    }
+  }
+}
+
+// Sección superior: configuración horizontal
+.config-section {
+  .config-card {
+    mat-card-content {
+      padding: 16px !important;
+    }
+    
+    .config-horizontal {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      
+      .eje-y-with-metric {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 200px;
+        
+        .metrica-selector {
+          .metrica-field {
+            width: 100%;
+            font-size: 12px;
+            
+            ::ng-deep {
+              .mat-mdc-form-field-subscript-wrapper {
+                margin-top: 4px;
+              }
+              
+              .mat-mdc-select-value {
+                font-size: 13px;
+              }
+              
+              .mat-mdc-option {
+                // Estilos para las opciones de métrica
+              }
+            }
+          }
+        }
+      }
+      
+      .config-item {
+        h3 {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          margin: 0 0 12px 0;
+          color: #666;
+          
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+      
+      .tipo-grafico {
+        .chart-types-compact {
+          display: flex;
+          gap: 4px;
+          
+          mat-button-toggle {
+            mat-icon {
+              font-size: 20px;
+            }
+          }
+        }
+      }
+      
+      .ejes {
+        flex: 1;
+        
+        .ejes-horizontal {
+          display: flex;
+          gap: 12px;
+          
+          app-drop-zone {
+            flex: 1;
+            min-width: 150px;
+          }
+        }
+      }
+      
+      .generar {
+        display: flex;
+        align-items: flex-end;
+        
+        .btn-generar {
+          height: 48px;
+          padding: 0 24px;
+          font-size: 16px;
+          
+          mat-icon {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Sección inferior: 2 columnas (1/4 y 3/4)
+.content-section {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  
+  .variables-panel {
+    app-variable-selector {
+      height: 100%;
+      display: block;
+    }
+  }
+  
+  .visualization-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    
+    .grafico-card {
+      flex: 1;
+      min-height: 500px;
+    }
+  }
+}
+
+// Estilos globales para snackbar
+::ng-deep {
+  .snackbar-success {
+    .mdc-snackbar__surface {
+      background-color: #4caf50 !important;
+    }
+    .mat-mdc-snack-bar-label {
+      color: white !important;
+    }
+  }
+  
+  .snackbar-warning {
+    .mdc-snackbar__surface {
+      background-color: #ff9800 !important;
+    }
+    .mat-mdc-snack-bar-label {
+      color: white !important;
+    }
+  }
+}
+
+// Legacy (mantener para compatibilidad)
+.explorer-layout {
+  display: grid;
+  grid-template-columns: 450px 1fr 450px;
+  gap: 20px;
+  min-height: calc(100vh - 200px);
+  position: relative;
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+  }
+  
+  .variables-column {
+    z-index: 1;
+    
+    app-variable-selector {
+      height: 100%;
+      display: block;
+    }
+  }
+  
+  .config-column {
+    z-index: 5;
+    
+    .chart-type-selector {
+      mat-card-header {
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          font-size: 16px;
+          
+          mat-icon {
+            margin-right: 8px;
+          }
+        }
+      }
+      
+      mat-card-content {
+        padding-top: 15px;
+        
+        .chart-types {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          
+          mat-button-toggle {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            
+            mat-icon {
+              font-size: 24px;
+              width: 24px;
+              height: 24px;
+            }
+            
+            &.mat-button-toggle-checked {
+              background: #3f51b5;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+    
+    .drop-zones {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .configuraciones-adicionales {
+      mat-card-header {
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          font-size: 16px;
+          
+          mat-icon {
+            margin-right: 8px;
+          }
+        }
+      }
+      
+      mat-card-content {
+        padding-top: 15px;
+        
+        .full-width {
+          width: 100%;
+          margin-bottom: 15px;
+        }
+      }
+    }
+  }
+  
+  .viz-column {
+    z-index: 2;
+    
+    .grafico-card {
+      flex: 1;
+      
+      mat-card-content {
+        padding: 0;
+      }
+    }
+    
+    .filtros-panel {
+      mat-expansion-panel-header {
+        mat-panel-title {
+          display: flex;
+          align-items: center;
+          
+          mat-icon {
+            margin-right: 8px;
+          }
+          
+          .filtro-count {
+            margin-left: 10px;
+            background: #3f51b5;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            min-height: 24px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .explorer-layout {
+    grid-template-columns: 280px 1fr 400px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .explorer-layout {
+    grid-template-columns: 1fr;
+    
+    .column {
+      &.variables-column,
+      &.config-column {
+        order: 1;
+      }
+      
+      &.viz-column {
+        order: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .explorer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    
+    .header-actions {
+      width: 100%;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+  
+  .explorer-layout {
+    gap: 15px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.data-explorer-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Scrollbar personalizado para Chrome/Safari */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #555;
+  }
+}
+

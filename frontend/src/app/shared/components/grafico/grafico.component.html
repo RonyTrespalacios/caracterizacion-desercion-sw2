@@ -1,0 +1,91 @@
+<div class="grafico-container">
+  <!-- Toolbar con acciones -->
+  @if (!loading && data && data.length > 0) {
+    <div class="grafico-toolbar">
+      <button 
+        mat-icon-button 
+        (click)="abrirPantallaCompleta()"
+        matTooltip="Ver en pantalla completa"
+        [disabled]="mostrarTabla">
+        <mat-icon>fullscreen</mat-icon>
+      </button>
+      <button 
+        mat-icon-button 
+        (click)="toggleTabla()"
+        [matTooltip]="mostrarTabla ? 'Ver gráfico' : 'Ver tabla'">
+        <mat-icon>{{ mostrarTabla ? 'insert_chart' : 'table_chart' }}</mat-icon>
+      </button>
+      <button 
+        mat-icon-button 
+        (click)="descargarCSV()"
+        [disabled]="!datosOriginales || datosOriginales.length === 0"
+        matTooltip="Descargar CSV">
+        <mat-icon>download</mat-icon>
+      </button>
+      <span class="toolbar-info">
+        {{ datosOriginales.length || 0 }} registro(s)
+      </span>
+    </div>
+  }
+
+  <!-- Loading overlay (por encima de todo) -->
+  @if (loading) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando gráfico...</p>
+    </div>
+  }
+
+  <!-- Contenedor del gráfico -->
+  @if (!mostrarTabla) {
+    <div class="plotly-wrapper" [class.hidden]="loading || !data || data.length === 0">
+      <div #plotlyChart style="width: 100%; height: 500px;"></div>
+    </div>
+  }
+
+  <!-- Vista de tabla -->
+  @if (mostrarTabla && !loading && datosOriginales && datosOriginales.length > 0) {
+    <div class="tabla-wrapper">
+      <table mat-table [dataSource]="datosOriginales" class="datos-tabla">
+        @for (columna of columnasTabla; track columna) {
+          <ng-container [matColumnDef]="columna">
+            <th mat-header-cell *matHeaderCellDef>{{ columna }}</th>
+            <td mat-cell *matCellDef="let fila">{{ fila[columna] }}</td>
+          </ng-container>
+        }
+        <tr mat-header-row *matHeaderRowDef="columnasTabla"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnasTabla;"></tr>
+      </table>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading && (!data || data.length === 0)) {
+    <div class="empty-state">
+      <mat-icon>insert_chart</mat-icon>
+      <p>No hay datos para mostrar</p>
+      <p class="hint">Usa los botones en las variables para agregar a los ejes</p>
+    </div>
+  }
+</div>
+
+<!-- Modal de pantalla completa -->
+@if (mostrarPantallaCompleta) {
+  <div class="fullscreen-overlay" (click)="cerrarPantallaCompleta()">
+    <div class="fullscreen-content" (click)="$event.stopPropagation()">
+      <div class="fullscreen-header">
+        <h2>{{ layout.title || 'Gráfico' }}</h2>
+        <button 
+          mat-icon-button 
+          (click)="cerrarPantallaCompleta()"
+          matTooltip="Cerrar pantalla completa">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="fullscreen-chart">
+        <div #plotlyChartFullscreen style="width: 100%; height: 100%;"></div>
+      </div>
+    </div>
+  </div>
+}
+

@@ -1,0 +1,232 @@
+<div class="filtro-panel">
+  <div class="panel-header">
+    <button 
+      mat-stroked-button 
+      color="warn" 
+      (click)="limpiarTodo()"
+      *ngIf="filtrosActivos.length > 0">
+      <mat-icon>clear_all</mat-icon>
+      Limpiar todo
+    </button>
+  </div>
+
+  <!-- Filtros activos -->
+  @if (filtrosActivos.length > 0) {
+    <div class="filtros-activos">
+      <h4>Filtros Activos ({{ filtrosActivos.length }})</h4>
+      <div class="filtros-list">
+        @for (filtro of filtrosActivos; track filtro.columna) {
+          <div class="filtro-item" [class.editing]="filtroEditando?.columna === filtro.columna">
+            <div class="filtro-content">
+              <div class="filtro-header">
+                <strong class="filtro-columna">{{ filtro.columna }}</strong>
+                <span class="filtro-operador">{{ getOperadorLabel(filtro.operador) }}</span>
+              </div>
+              <div class="filtro-valor" [title]="getValorCompleto(filtro.valor)">
+                {{ getValorFormateado(filtro.valor) }}
+              </div>
+            </div>
+            <div class="filtro-actions">
+              <button 
+                mat-icon-button 
+                class="filtro-edit"
+                (click)="editarFiltro(filtro)"
+                matTooltip="Editar filtro">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                class="filtro-remove"
+                (click)="removerFiltro(filtro.columna)"
+                matTooltip="Eliminar filtro">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Formulario para agregar filtros -->
+  <div class="filtro-form">
+    <h4>Agregar Filtro</h4>
+    
+    <form [formGroup]="filtroForm" (ngSubmit)="agregarFiltro()">
+      <!-- Fila horizontal: Columna | Operador | Valor -->
+      <div class="form-row">
+        <!-- Columna -->
+        <div class="form-field-col columna-field">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Columna</mat-label>
+            <input 
+              matInput 
+              formControlName="columna"
+              [matAutocomplete]="autoColumna"
+              placeholder="Buscar columna..."
+              (input)="onBuscarColumna($event)"
+              (keydown.enter)="onEnterColumna()"
+              (keydown.tab)="onEnterColumna()">
+            <mat-icon matSuffix>search</mat-icon>
+            <mat-autocomplete 
+              #autoColumna="matAutocomplete"
+              [displayWith]="displayColumna"
+              [autoActiveFirstOption]="true"
+              (optionSelected)="onColumnaSeleccionada($event)">
+              @if (columnasFiltradas.length === 0) {
+                <mat-option disabled>
+                  No se encontraron columnas
+                </mat-option>
+              } @else {
+                @for (col of columnasFiltradas; track col.nombre) {
+                  <mat-option [value]="col">
+                    <mat-icon [style.color]="col.tipo === 'numerico' ? '#4caf50' : '#2196f3'" class="option-icon">
+                      {{ col.tipo === 'numerico' ? 'looks_one' : 'label' }}
+                    </mat-icon>
+                    <span>{{ col.nombre }}</span>
+                  </mat-option>
+                }
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <!-- Operador -->
+        @if (columnaSeleccionada) {
+          <div class="form-field-col operador-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Operador</mat-label>
+              <mat-select formControlName="operador">
+                @for (op of operadoresDisponibles; track op.value) {
+                  <mat-option [value]="op.value">
+                    {{ op.label }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Valor -->
+        @if (columnaSeleccionada) {
+          <div class="form-field-col valor-field">
+            <!-- Valor (para selección múltiple con checkboxes) - numéricas < 40 o categóricas < 60 -->
+            @if (esMultipleSelection && columnaSeleccionada.valores_unicos && 
+                 ((columnaSeleccionada.tipo === 'numerico' && columnaSeleccionada.valores_unicos.length < 40) ||
+                  (columnaSeleccionada.tipo === 'categorico' && columnaSeleccionada.valores_unicos.length <= 60))) {
+              <div class="valores-checkbox-container">
+                <div class="checkbox-header">
+                  <h5>Seleccionar valores ({{ valoresSeleccionados.length }} de {{ columnaSeleccionada.valores_unicos.length }})</h5>
+                  <div class="checkbox-actions">
+                    <button 
+                      mat-stroked-button 
+                      type="button"
+                      (click)="seleccionarTodos()"
+                      [disabled]="valoresSeleccionados.length === columnaSeleccionada.valores_unicos.length"
+                      class="btn-select-all">
+                      <mat-icon>check_box</mat-icon>
+                      Seleccionar todo
+                    </button>
+                    <button 
+                      mat-stroked-button 
+                      type="button"
+                      (click)="deseleccionarTodos()"
+                      [disabled]="valoresSeleccionados.length === 0"
+                      class="btn-deselect-all">
+                      <mat-icon>check_box_outline_blank</mat-icon>
+                      Desmarcar todo
+                    </button>
+                  </div>
+                </div>
+                <div class="checkbox-scroll">
+                  @for (valor of columnaSeleccionada.valores_unicos; track valor) {
+                    <mat-checkbox 
+                      [checked]="isValorSeleccionado(valor)"
+                      (change)="onValorCheckboxChange(valor, $event.checked)">
+                      {{ valor }}
+                    </mat-checkbox>
+                  }
+                </div>
+              </div>
+            }
+            
+            <!-- Valor (para selección múltiple con select cuando hay muchos valores) -->
+            @else if (esMultipleSelection && columnaSeleccionada.valores_unicos && 
+                     ((columnaSeleccionada.tipo === 'numerico' && columnaSeleccionada.valores_unicos.length >= 40) ||
+                      (columnaSeleccionada.tipo === 'categorico' && columnaSeleccionada.valores_unicos.length > 60))) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Valores</mat-label>
+                <mat-select formControlName="valor" multiple>
+                  @for (valor of columnaSeleccionada.valores_unicos; track valor) {
+                    <mat-option [value]="valor">
+                      {{ valor }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            
+            <!-- Valor (para selección simple categórica con valores únicos) -->
+            @else if (!esMultipleSelection && columnaSeleccionada.tipo === 'categorico' && columnaSeleccionada.valores_unicos) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Valor</mat-label>
+                <mat-select formControlName="valor">
+                  @for (valor of columnaSeleccionada.valores_unicos; track valor) {
+                    <mat-option [value]="valor">
+                      {{ valor }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            
+            <!-- Valor (input de texto para categoricos sin valores únicos) -->
+            @else if (!esMultipleSelection && columnaSeleccionada.tipo === 'categorico' && !columnaSeleccionada.valores_unicos) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Valor</mat-label>
+                <input matInput formControlName="valor" placeholder="Ingrese el valor">
+              </mat-form-field>
+            }
+            
+            <!-- Valor (input numérico) -->
+            @else if (!esMultipleSelection && columnaSeleccionada.tipo === 'numerico') {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Valor</mat-label>
+                <input matInput type="number" formControlName="valor" placeholder="Ingrese el valor">
+                @if (columnaSeleccionada.valor_minimo !== undefined) {
+                  <mat-hint>
+                    Rango: {{ columnaSeleccionada.valor_minimo }} - {{ columnaSeleccionada.valor_maximo }}
+                  </mat-hint>
+                }
+              </mat-form-field>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Botón agregar -->
+      <div class="button-row">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit"
+          [disabled]="!filtroForm.valid || !columnaSeleccionada"
+          class="btn-agregar">
+          <mat-icon>{{ filtroEditando ? 'save' : 'add' }}</mat-icon>
+          {{ filtroEditando ? 'Actualizar Filtro' : 'Agregar Filtro' }}
+        </button>
+        @if (filtroEditando) {
+          <button 
+            mat-stroked-button 
+            type="button"
+            (click)="cancelarEdicion()"
+            class="btn-cancelar">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+        }
+      </div>
+    </form>
+  </div>
+</div>
+

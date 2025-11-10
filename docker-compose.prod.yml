@@ -5,10 +5,12 @@ services:
   db:
     image: postgres:15-alpine
     container_name: trayectoria_db_prod
+    env_file:
+      - ./backend/.env
     environment:
       POSTGRES_DB: ${DB_NAME:-trayectoria_estudiantil}
       POSTGRES_USER: ${DB_USER:-trayectoria_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     networks:

@@ -98,11 +98,13 @@ cd trayectoria-app
 ### 3.2 Crear archivo de variables de entorno para producción
 ```bash
 cd backend
-cp .env.example .env  # Si existe, o crear uno nuevo
-nano .env
+cp env.example .env  # Copiar el archivo de ejemplo
+nano .env  # Editar con tus valores
 ```
 
-**Configuración mínima del archivo `.env`:**
+**⚠️ IMPORTANTE:** El archivo `.env` debe estar en `backend/.env` y debe contener todas las variables necesarias, especialmente `DB_PASSWORD`.
+
+**Configuración mínima del archivo `backend/.env`:**
 ```env
 # Seguridad
 SECRET_KEY=tu-clave-secreta-muy-larga-y-aleatoria-aqui-genera-una-nueva
@@ -111,11 +113,11 @@ DEBUG=False
 # Hosts permitidos (reemplaza con tu dominio o IP)
 ALLOWED_HOSTS=tu-dominio.com,www.tu-dominio.com,tu-ip-publica
 
-# Base de datos
+# Base de datos - IMPORTANTE: Configurar DB_PASSWORD
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=trayectoria_estudiantil
 DB_USER=trayectoria_user
-DB_PASSWORD=TU_PASSWORD_SEGURO_AQUI
+DB_PASSWORD=TU_PASSWORD_SEGURO_AQUI  # ⚠️ NO DEJAR VACÍO
 DB_HOST=localhost
 DB_PORT=5432
 
@@ -126,6 +128,8 @@ CORS_ALLOWED_ORIGINS=https://tu-dominio.com,https://www.tu-dominio.com
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 ```
+
+**Nota:** El archivo `docker-compose.prod.yml` lee las variables desde `backend/.env`, por lo que es importante que este archivo exista y contenga todas las variables necesarias, especialmente `DB_PASSWORD`.
 
 **⚠️ IMPORTANTE:** 
 - Genera una `SECRET_KEY` segura: `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`

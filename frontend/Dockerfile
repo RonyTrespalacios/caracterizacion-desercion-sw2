@@ -3,6 +3,9 @@
 # Etapa 1: Build
 FROM node:18-alpine AS build
 
+# Aumentar el límite de memoria de Node.js para evitar errores de heap
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 WORKDIR /app
 
 # Copiar package.json
@@ -15,8 +18,8 @@ RUN npm install --silent
 COPY . .
 
 # Build de producción
-# Usando development config para evitar límites de budget estrictos en Docker
-RUN npm run build -- --configuration=development --output-path=dist/trayectoria-estudiantil
+# Usando configuración de producción (más optimizada y requiere menos memoria)
+RUN npm run build -- --configuration=production --output-path=dist/trayectoria-estudiantil
 
 # Etapa 2: Servir con Nginx
 FROM nginx:alpine
@@ -24,8 +27,8 @@ FROM nginx:alpine
 # Copiar archivos compilados
 COPY --from=build /app/dist/trayectoria-estudiantil /usr/share/nginx/html
 
-# Copiar configuración de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuración de Nginx para producción
+COPY nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Exponer puerto 80
 EXPOSE 80

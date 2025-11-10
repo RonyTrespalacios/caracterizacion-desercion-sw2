@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Script de despliegue rápido para producción
-# Uso: ./scripts/deploy.sh
+# Uso: 
+#   ./scripts/deploy.sh           # Ejecución normal (interactiva)
+#   ./scripts/deploy-background.sh # Ejecución en segundo plano (puedes cerrar SSH)
+#   nohup ./scripts/deploy.sh &   # Alternativa manual
 
 set -e  # Salir si hay algún error
 
@@ -14,9 +17,17 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
 }
 
-# Redirigir stdout y stderr al log y a la consola
-exec > >(tee -a "$LOG_FILE")
-exec 2>&1
+# Redirigir stdout y stderr al log
+# Si estamos en background (nohup), solo escribir al log
+# Si estamos en foreground, mostrar en consola Y guardar en log
+if [ -t 0 ]; then
+    # Terminal interactivo - mostrar en consola y guardar en log
+    exec > >(tee -a "$LOG_FILE")
+    exec 2>&1
+else
+    # Background/nohup - solo guardar en log
+    exec >> "$LOG_FILE" 2>&1
+fi
 
 echo "🚀 Iniciando despliegue en producción..."
 log "Iniciando despliegue - Log guardado en: $LOG_FILE"

@@ -243,17 +243,45 @@ networks:
 
 ### 4.2 Construir y levantar servicios
 
-**Opción A: Usar el script de despliegue (Recomendado)**
+**Opción A: Despliegue en segundo plano (Recomendado para builds largos)**
+```bash
+# Ejecuta en background - puedes cerrar la consola SSH
+chmod +x scripts/deploy-background.sh
+./scripts/deploy-background.sh
+
+# Verificar progreso (desde otra terminal o después de reconectar)
+./scripts/check-deploy.sh
+
+# Ver log en tiempo real
+tail -f logs/deploy_*.log
+```
+
+**Opción B: Despliegue interactivo (ver progreso en tiempo real)**
 ```bash
 # El script maneja todo automáticamente y guarda logs
 chmod +x scripts/deploy.sh
 ./scripts/deploy.sh
 ```
 
-**Opción B: Manual**
+**Opción C: Manual**
 ```bash
 docker compose -f docker-compose.prod.yml build
 docker compose -f docker-compose.prod.yml up -d
+```
+
+**Opción D: Usar screen o tmux (Alternativa avanzada)**
+```bash
+# Con screen
+screen -S deploy
+./scripts/deploy.sh
+# Presiona Ctrl+A luego D para desconectar
+# Reconectar: screen -r deploy
+
+# Con tmux
+tmux new-session -s deploy
+./scripts/deploy.sh
+# Presiona Ctrl+B luego D para desconectar
+# Reconectar: tmux attach -t deploy
 ```
 
 ### 4.3 Crear superusuario
@@ -547,18 +575,38 @@ Si tu droplet tiene **2GB RAM o menos**, el build del frontend puede saturar el 
 
 ### Uso del Script de Despliegue
 
-El script `scripts/deploy.sh` ahora incluye:
+**Despliegue en segundo plano (puedes cerrar SSH):**
+```bash
+chmod +x scripts/deploy-background.sh
+./scripts/deploy-background.sh
+
+# Verificar estado (desde otra terminal o después de reconectar)
+./scripts/check-deploy.sh
+
+# Ver log en tiempo real
+tail -f logs/deploy_*.log
+```
+
+**Despliegue interactivo (ver progreso en tiempo real):**
+```bash
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+El script incluye:
 - Verificación de memoria antes del build
 - Logging completo a archivo
 - Manejo de errores mejorado
+- Soporte para ejecución en background
 
+**Ver logs después del despliegue:**
 ```bash
-# Ejecutar despliegue (los logs se guardan automáticamente)
-./scripts/deploy.sh
-
-# Ver el último log de despliegue
+# Ver el último log
 ls -lt logs/ | head -1
 cat logs/deploy_*.log | tail -100
+
+# Verificar si hay un despliegue en progreso
+./scripts/check-deploy.sh
 ```
 
 ### Si el Build Sigue Fallando

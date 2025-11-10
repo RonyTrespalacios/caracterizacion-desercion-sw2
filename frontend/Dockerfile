@@ -19,7 +19,8 @@ COPY . .
 
 # Build de producción
 # Usando configuración de producción (más optimizada y requiere menos memoria)
-RUN npm run build -- --configuration=production --output-path=dist/trayectoria-estudiantil
+# Agregar --verbose para ver el progreso del build
+RUN npm run build -- --configuration=production --output-path=dist/trayectoria-estudiantil --verbose
 
 # Etapa 2: Servir con Nginx
 FROM nginx:alpine

@@ -1,4 +1,4 @@
-version: '3.8'
+# Versión removida - Docker Compose v2 no requiere version
 
 services:
   # Base de datos PostgreSQL

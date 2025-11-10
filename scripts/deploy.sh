@@ -70,7 +70,10 @@ else
 fi
 
 # Construir imágenes con logging detallado
-echo -e "${GREEN}📦 Construyendo imágenes Docker...${NC}"
+# NOTA: --no-cache es muy lento. Si es la primera vez, está bien.
+# Para builds subsecuentes, considera usar ./scripts/deploy-optimized.sh
+echo -e "${GREEN}📦 Construyendo imágenes Docker (esto puede tardar 30-60 minutos)...${NC}"
+echo -e "${YELLOW}💡 Tip: Para builds más rápidos, usa ./scripts/deploy-optimized.sh${NC}"
 log "Iniciando build de imágenes Docker..."
 docker compose -f docker-compose.prod.yml build --no-cache 2>&1 | tee -a "$LOG_FILE" || {
     log "ERROR: Fallo en el build de Docker"

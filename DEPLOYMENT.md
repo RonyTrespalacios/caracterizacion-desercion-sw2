@@ -243,7 +243,18 @@ networks:
 
 ### 4.2 Construir y levantar servicios
 
-**Opción A: Despliegue en segundo plano (Recomendado para builds largos)**
+**Opción A: Despliegue optimizado (Recomendado - más rápido)**
+```bash
+# Construye en etapas: backend primero (rápido), luego frontend (lento)
+# Usa caché de Docker cuando es posible
+chmod +x scripts/deploy-optimized.sh
+./scripts/deploy-optimized.sh
+
+# O en background:
+nohup ./scripts/deploy-optimized.sh > logs/deploy.log 2>&1 &
+```
+
+**Opción B: Despliegue en segundo plano (puedes cerrar SSH)**
 ```bash
 # Ejecuta en background - puedes cerrar la consola SSH
 chmod +x scripts/deploy-background.sh
@@ -256,30 +267,46 @@ chmod +x scripts/deploy-background.sh
 tail -f logs/deploy_*.log
 ```
 
-**Opción B: Despliegue interactivo (ver progreso en tiempo real)**
+**Opción C: Despliegue interactivo (ver progreso en tiempo real)**
 ```bash
 # El script maneja todo automáticamente y guarda logs
+# NOTA: Usa --no-cache, puede tardar 1-2 horas
 chmod +x scripts/deploy.sh
 ./scripts/deploy.sh
 ```
 
-**Opción C: Manual**
+**Opción D: Construir solo frontend (si backend ya está construido)**
 ```bash
-docker compose -f docker-compose.prod.yml build
+# Útil si solo cambiaste el frontend
+chmod +x scripts/build-frontend-only.sh
+./scripts/build-frontend-only.sh
+
+# Luego levantar servicios
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-**Opción D: Usar screen o tmux (Alternativa avanzada)**
+**Opción E: Manual**
+```bash
+# Sin --no-cache (más rápido, usa caché)
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+
+# Con --no-cache (más lento, rebuild completo)
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d
+```
+
+**Opción F: Usar screen o tmux (Alternativa avanzada)**
 ```bash
 # Con screen
 screen -S deploy
-./scripts/deploy.sh
+./scripts/deploy-optimized.sh
 # Presiona Ctrl+A luego D para desconectar
 # Reconectar: screen -r deploy
 
 # Con tmux
 tmux new-session -s deploy
-./scripts/deploy.sh
+./scripts/deploy-optimized.sh
 # Presiona Ctrl+B luego D para desconectar
 # Reconectar: tmux attach -t deploy
 ```

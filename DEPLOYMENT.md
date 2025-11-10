@@ -242,6 +242,15 @@ networks:
 ```
 
 ### 4.2 Construir y levantar servicios
+
+**Opción A: Usar el script de despliegue (Recomendado)**
+```bash
+# El script maneja todo automáticamente y guarda logs
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+**Opción B: Manual**
 ```bash
 docker compose -f docker-compose.prod.yml build
 docker compose -f docker-compose.prod.yml up -d
@@ -513,6 +522,91 @@ crontab -e
 - [ ] Logs configurados y monitoreados
 - [ ] Backups automáticos configurados
 
+## ⚡ Optimizaciones para Recursos Limitados (2GB RAM)
+
+Si tu droplet tiene **2GB RAM o menos**, el build del frontend puede saturar el servidor. Se han implementado las siguientes optimizaciones:
+
+### Optimizaciones Implementadas
+
+1. **Configuración de Build "Light"**: 
+   - Desactiva `buildOptimizer` (muy pesado en memoria)
+   - Mantiene optimizaciones básicas (scripts, styles, fonts)
+   - Reduce uso de memoria durante el build
+
+2. **Límite de Memoria Node.js**: 
+   - Reducido a 1.5GB (en lugar de 4GB)
+   - Deja espacio para el sistema operativo y Docker
+
+3. **Logging a Archivo**: 
+   - Todos los logs del despliegue se guardan en `logs/deploy_YYYYMMDD_HHMMSS.log`
+   - Permite revisar errores incluso si el servidor se satura
+
+4. **Límites de Memoria en Docker**: 
+   - El contenedor frontend tiene límite de 2GB
+   - Reserva mínima de 512MB
+
+### Uso del Script de Despliegue
+
+El script `scripts/deploy.sh` ahora incluye:
+- Verificación de memoria antes del build
+- Logging completo a archivo
+- Manejo de errores mejorado
+
+```bash
+# Ejecutar despliegue (los logs se guardan automáticamente)
+./scripts/deploy.sh
+
+# Ver el último log de despliegue
+ls -lt logs/ | head -1
+cat logs/deploy_*.log | tail -100
+```
+
+### Si el Build Sigue Fallando
+
+**Opción 1: Build Local (Recomendado para recursos limitados)**
+```bash
+# En tu máquina local (con más recursos)
+cd frontend
+npm install
+npm run build -- --configuration=light --output-path=dist/trayectoria-estudiantil
+
+# Copiar solo los archivos compilados al servidor
+scp -r dist/trayectoria-estudiantil/* usuario@servidor:/ruta/al/proyecto/frontend/dist/trayectoria-estudiantil/
+
+# En el servidor, reconstruir solo la imagen Nginx (sin build de Angular)
+docker compose -f docker-compose.prod.yml build frontend
+docker compose -f docker-compose.prod.yml up -d frontend
+```
+
+**Opción 2: Aumentar Recursos del Droplet**
+- Actualizar a 4GB RAM o más
+- Digital Ocean permite hacer resize del droplet fácilmente
+
+**Opción 3: Usar Build en Etapas**
+```bash
+# Construir solo el backend primero
+docker compose -f docker-compose.prod.yml build backend
+docker compose -f docker-compose.prod.yml up -d db redis backend
+
+# Luego construir el frontend en otro momento
+docker compose -f docker-compose.prod.yml build frontend
+docker compose -f docker-compose.prod.yml up -d frontend
+```
+
+### Monitoreo Durante el Build
+
+En otra terminal SSH, puedes monitorear recursos:
+```bash
+# Ver uso de memoria
+watch -n 1 free -h
+
+# Ver procesos Docker
+docker stats
+
+# Ver logs en tiempo real
+tail -f logs/deploy_*.log
+```
+
 ## 🐛 Solución de Problemas
 
 ### Error de CORS
@@ -532,6 +626,19 @@ crontab -e
 - Verifica que Nginx esté corriendo: `sudo systemctl status nginx`
 - Verifica permisos: `sudo chown -R www-data:www-data /var/www/trayectoria`
 - Verifica logs de Nginx: `sudo tail -f /var/log/nginx/error.log`
+
+### Build del Frontend Satura el Servidor (2GB RAM)
+- **Síntoma**: El servidor se vuelve inaccesible durante el build, no responde SSH
+- **Causa**: El build de Angular requiere mucha memoria
+- **Solución**: 
+  1. Revisa el log del despliegue: `cat logs/deploy_*.log | tail -100`
+  2. Usa build local y copia archivos (ver sección "Optimizaciones para Recursos Limitados")
+  3. O aumenta recursos del droplet a 4GB+ RAM
+  4. El build ahora usa configuración "light" que requiere menos memoria
+
+### Error "JavaScript heap out of memory"
+- Ya está solucionado con `NODE_OPTIONS="--max-old-space-size=1536"` en el Dockerfile
+- Si persiste, considera build local o aumentar recursos del servidor
 
 ## 📝 Notas Adicionales
 

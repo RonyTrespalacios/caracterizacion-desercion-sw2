@@ -77,6 +77,12 @@ services:
     networks:
       - trayectoria_network
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
 
 volumes:
   postgres_data_prod:

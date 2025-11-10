@@ -196,7 +196,8 @@ media/uploads/*
 # Logs y Temporales
 # ============================================
 *.log
-logs/
+logs/*
+!logs/.gitkeep
 *.tmp
 *.temp
 .cache/

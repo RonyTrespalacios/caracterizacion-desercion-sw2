@@ -1,0 +1,56 @@
+# Docker Compose para backend solo (Digital Ocean Droplet)
+# Uso: docker compose -f docker-compose.backend.yml up -d
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: trayectoria_db_prod
+    env_file:
+      - ./backend/.env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-trayectoria_estudiantil}
+      POSTGRES_USER: ${DB_USER:-trayectoria_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - trayectoria_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-trayectoria_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Django
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: trayectoria_backend_prod
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --config gunicorn_config.py"
+    volumes:
+      - ./backend:/app
+      - static_volume_prod:/app/staticfiles
+      - media_volume_prod:/app/media
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - trayectoria_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+  static_volume_prod:
+  media_volume_prod:
+
+networks:
+  trayectoria_network:
+    driver: bridge
+
